@@ -13,12 +13,18 @@
 	#include <stdint.h>
 	#include <unistd.h>
 
+	#define POWER_SUPPLY_AC       "/sys/class/power_supply/AC/online"
 	#define POWER_SUPPLY_CAPACITY "/sys/class/power_supply/%s/capacity"
 	#define POWER_SUPPLY_STATUS   "/sys/class/power_supply/%s/status"
 	#define POWER_SUPPLY_CHARGE   "/sys/class/power_supply/%s/charge_now"
 	#define POWER_SUPPLY_ENERGY   "/sys/class/power_supply/%s/energy_now"
 	#define POWER_SUPPLY_CURRENT  "/sys/class/power_supply/%s/current_now"
 	#define POWER_SUPPLY_POWER    "/sys/class/power_supply/%s/power_now"
+
+	#define BATTERY_CONFIG
+	#include "../config.h"
+	extern const int bdi;
+	extern const struct dynico bdis[];
 
 	static const char *
 	pick(const char *bat, const char *f1, const char *f2, char *path,
@@ -38,15 +44,31 @@
 	const char *
 	battery_perc(const char *bat)
 	{
-		int cap_perc;
-		char path[PATH_MAX];
+		int cap_perc, ac_online;
+		char cap_perc_path[PATH_MAX];
+		char ac_online_path[PATH_MAX];
 
-		if (esnprintf(path, sizeof(path), POWER_SUPPLY_CAPACITY, bat) < 0)
+		if (esnprintf(cap_perc_path, sizeof(cap_perc_path), POWER_SUPPLY_CAPACITY, bat) < 0)
 			return NULL;
-		if (pscanf(path, "%d", &cap_perc) != 1)
+		if (pscanf(cap_perc_path, "%d", &cap_perc) != 1)
 			return NULL;
 
-		return bprintf("%d", cap_perc);
+		if (bdi) {
+			if (esnprintf(ac_online_path, sizeof(ac_online_path), POWER_SUPPLY_AC, NULL) < 0)
+				return NULL;
+			if (pscanf(ac_online_path, "%d", &ac_online) != 1)
+				return NULL;
+
+			if (ac_online)
+				return bprintf("%s%s%s %d", bdis[0].colb, bdis[0].ico, bdis[0].cole, cap_perc);
+
+			for (long unsigned int i = 1; i < LEN(bdis); i++) {
+				if (cap_perc <= bdis[i].lvl)
+					return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, cap_perc);
+			}
+		}
+
+		return bprintf("%d", cap_perc_path);
 	}
 
 	const char *

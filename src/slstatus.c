@@ -21,6 +21,7 @@ char buf[1024];
 static volatile sig_atomic_t done;
 static Display *dpy;
 
+#define SLSTATUS_CONFIG
 #include "config.h"
 
 static void
@@ -58,6 +59,7 @@ main(int argc, char *argv[])
 	ARGBEGIN {
 	case 'v':
 		die("slstatus-"VERSION);
+		/* FALLTHROUGH */
 	case '1':
 		done = 1;
 		/* FALLTHROUGH */
