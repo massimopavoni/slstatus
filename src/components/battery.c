@@ -60,12 +60,13 @@
 			if (pscanf(ac_online_path, "%d", &ac_online) != 1)
 				return NULL;
 
-			if (ac_online)
-				return bprintf("%s%s%s %d", bdis[0].colb, bdis[0].ico, bdis[0].cole, cap_perc);
-
 			for (long unsigned int i = 1; i < LEN(bdis); i++) {
-				if (cap_perc <= bdis[i].lvl)
-					return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, cap_perc);
+				if (cap_perc <= bdis[i].lvl) {
+					if (ac_online)
+						return bprintf("%s%s%s %d", bdis[0].colb, bdis[i].ico, bdis[0].cole, cap_perc);
+					else
+						return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, cap_perc);
+				}
 			}
 		}
 
