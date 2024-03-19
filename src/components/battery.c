@@ -13,7 +13,8 @@
 	#include <stdint.h>
 	#include <unistd.h>
 
-	#define POWER_SUPPLY_AC       "/sys/class/power_supply/AC/online"
+	#define AC_ONLINE             "/sys/class/power_supply/AC/online"
+
 	#define POWER_SUPPLY_CAPACITY "/sys/class/power_supply/%s/capacity"
 	#define POWER_SUPPLY_STATUS   "/sys/class/power_supply/%s/status"
 	#define POWER_SUPPLY_CHARGE   "/sys/class/power_supply/%s/charge_now"
@@ -54,7 +55,7 @@
 			return NULL;
 
 		if (bdi) {
-			if (esnprintf(ac_online_path, sizeof(ac_online_path), POWER_SUPPLY_AC, NULL) < 0)
+			if (esnprintf(ac_online_path, sizeof(ac_online_path), AC_ONLINE, NULL) < 0)
 				return NULL;
 			if (pscanf(ac_online_path, "%d", &ac_online) != 1)
 				return NULL;
