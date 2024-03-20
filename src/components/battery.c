@@ -24,8 +24,6 @@
 
 	#define BATTERY_CONFIG
 	#include "../config.h"
-	extern const struct dynico bdis[];
-	extern const struct dynico cbdis[];
 
 	static const char *
 	pick(const char *bat, const char *f1, const char *f2, char *path,
@@ -61,6 +59,7 @@
 	battery_perc(const char *bat) 
 	{
 		int perc;
+
 		if (_battery_perc(bat, &perc) < 0)
 			return NULL;
 
@@ -82,17 +81,15 @@
 			return NULL;
 		
 		if (ac_online) {
-			for (long unsigned int i = 0; i < LEN(cbdis); i++) {
+			for (long unsigned int i = 0; i < LEN(cbdis); i++)
 				if (perc <= cbdis[i].lvl)
 					return bprintf("%s%s%s %d", cbdis[i].colb, cbdis[i].ico, cbdis[i].cole, perc);
-			}
 		}
 		
-		for (long unsigned int i = 1; i < LEN(bdis); i++) {
+		for (long unsigned int i = 1; i < LEN(bdis); i++)
 			if (perc <= bdis[i].lvl)
 				return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, perc);
-                }
-		
+
 		return bprintf("%d", perc);
 	}
 

@@ -64,6 +64,8 @@
 	 * vol_perc            OSS/ALSA volume in percent      mixer file (/dev/mixer)
 	 *                                                     NULL on OpenBSD/FreeBSD
 	 * wifi_essid          WiFi ESSID                      interface name (wlan0)
+	 * wifi_essid_di       WiFi ESSID                      interface name (wlan0)
+	 *                     with dynamic icon support       LINUX ONLY
 	 * wifi_perc           WiFi signal in percent          interface name (wlan0)
 	 */
 	static const struct arg args[] = {
@@ -71,40 +73,56 @@
 		{ cpu_perc,          " \uf4bc %2s%%",    NULL },
 		{ temp,              " %2s°C",           "/sys/class/thermal/thermal_zone8/temp" },
 		{ ram_used,          " %6s |",           NULL },
-		{ wifi_essid,        " \uf1eb %s |",     "wlan0" },
+		{ wifi_essid_di,     " %5s |",          "wlan0" },
 		{ battery_perc_di,   " %4s%% |",         "BAT0" },
 		{ keymap,            " %s |",            NULL },
 		{ datetime,          " %s |",            "%A %d %B %Y | %T" },
 	};
 #endif
 
-#if defined(BATTERY_CONFIG) && defined(__linux__)
-        /* enable dynamic icons and choose graphemes for them
-         * status2d dwm patch needed for colors: leave NULL if not patched */
-        const struct dynico bdis[] = {    /* battery icons */
-                /* level  icon  begin color code  end color code */
-                {  10,    "󰁺",  "^c#ff0000^",     "^d^" },
-		{  20,    "󰁻",  "^c#ff3900^",     "^d^" },
-                {  30,    "󰁼",  "^c#ff7100^",     "^d^" },
-                {  40,    "󰁽",  "^c#ffaa00^",     "^d^" },
-                {  50,    "󰁾",  "^c#ffe300^",     "^d^" },
-		{  60,    "󰁿",  "^c#e3ff00^",     "^d^" },
-		{  70,    "󰂀",  "^c#aaff00^",     "^d^" },
-		{  80,    "󰂁",  "^c#71ff00^",     "^d^" },
-                {  90,    "󰂂",  "^c#39ff00^",     "^d^" },
-                {  100,   "󰁹",  "^c#00ff00^",     "^d^" },
-        };
-	const struct dynico cbdis[] = {   /* charging battery icons */
-		/* level  icon  begin color code  end color code */
-		{  10,    "󰢜",  "^c#ff0000^",     "^d^" },
-                {  20,    "󰂆",  "^c#ff3900^",     "^d^" },
-                {  30,    "󰂇",  "^c#ff7100^",     "^d^" },
-                {  40,    "󰂈",  "^c#ffaa00^",     "^d^" },
-                {  50,    "󰢝",  "^c#ffe300^",     "^d^" },
-                {  60,    "󰂉",  "^c#e3ff00^",     "^d^" },
-                {  70,    "󰢞",  "^c#aaff00^",     "^d^" },
-                {  80,    "󰂊",  "^c#71ff00^",     "^d^" },
-                {  90,    "󰂋",  "^c#39ff00^",     "^d^" },
-                {  100,   "󰂅",  "^c#00ff00^",     "^d^" },
-        };
+#if defined(__linux__)
+	/* enable dynamic icons
+	 * color support needed (status2d patch for dwm): leave colors NULL if not available */
+	#if defined(BATTERY_CONFIG)
+		/* battery dynamic icons */
+	        const struct dynico bdis[] = {
+			/* level  icon  begin color code  end color code */
+	                {  10,    "󰁺",  "^c#ff0000^",     "^d^" },
+			{  20,    "󰁻",  "^c#ff3900^",     "^d^" },
+	                {  30,    "󰁼",  "^c#ff7100^",     "^d^" },
+	                {  40,    "󰁽",  "^c#ffaa00^",     "^d^" },
+	                {  50,    "󰁾",  "^c#ffe300^",     "^d^" },
+			{  60,    "󰁿",  "^c#e3ff00^",     "^d^" },
+			{  70,    "󰂀",  "^c#aaff00^",     "^d^" },
+			{  80,    "󰂁",  "^c#71ff00^",     "^d^" },
+	                {  90,    "󰂂",  "^c#39ff00^",     "^d^" },
+	                {  100,   "󰁹",  "^c#00ff00^",     "^d^" },
+	        };
+		/* charging battery dynamic icons */
+		const struct dynico cbdis[] = {
+			/* level  icon  begin color code  end color code */
+			{  10,    "󰢜",  "^c#ff0000^",     "^d^" },
+	                {  20,    "󰂆",  "^c#ff3900^",     "^d^" },
+	                {  30,    "󰂇",  "^c#ff7100^",     "^d^" },
+	                {  40,    "󰂈",  "^c#ffaa00^",     "^d^" },
+	                {  50,    "󰢝",  "^c#ffe300^",     "^d^" },
+	                {  60,    "󰂉",  "^c#e3ff00^",     "^d^" },
+	                {  70,    "󰢞",  "^c#aaff00^",     "^d^" },
+	                {  80,    "󰂊",  "^c#71ff00^",     "^d^" },
+	                {  90,    "󰂋",  "^c#39ff00^",     "^d^" },
+	                {  100,   "󰂅",  "^c#00ff00^",     "^d^" },
+	        };
+	#elif defined(WIFI_CONFIG)
+		/* wifi dynamic icons */
+		const struct dynico wdis[] = {
+			/* level  icon  begin color code  end color code */
+			{  25,    "󰤟",  "^c#ff0000^",     "^d^" },
+			{  40,    "󰤢",  "^c#ffaa00^",     "^d^" },
+			{  70,    "󰤥",  "^c#aaff00^",     "^d^" },
+			{  100,   "󰤨",  "^c#00ff00^",     "^d^" },
+		};
+		const char *disconnected = "n/a";
+		/* disconnected wifi dynamic icon */
+		const struct dynico dwdi = { -1, "󰤮", "^c#ff0000^", "^d^" };
+	#endif
 #endif

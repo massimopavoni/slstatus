@@ -20,8 +20,11 @@
 
 	#define NET_OPERSTATE "/sys/class/net/%s/operstate"
 
-	const char *
-	wifi_perc(const char *interface)
+	#define WIFI_CONFIG
+	#include "../config.h"
+
+	static int
+	_wifi_perc(const char *interface, int *perc)
 	{
 		int cur;
 		size_t i;
@@ -31,19 +34,19 @@
 		FILE *fp;
 
 		if (esnprintf(path, sizeof(path), NET_OPERSTATE, interface) < 0)
-			return NULL;
+			return -1;
 		if (!(fp = fopen(path, "r"))) {
 			warn("fopen '%s':", path);
-			return NULL;
+			return -1;
 		}
 		p = fgets(status, 5, fp);
 		fclose(fp);
 		if (!p || strcmp(status, "up\n") != 0)
-			return NULL;
+			return -1;
 
 		if (!(fp = fopen("/proc/net/wireless", "r"))) {
 			warn("fopen '/proc/net/wireless':");
-			return NULL;
+			return -1;
 		}
 
 		for (i = 0; i < 3; i++)
@@ -52,21 +55,33 @@
 
 		fclose(fp);
 		if (i < 2 || !p)
-			return NULL;
+			return -1;
 
 		if (!(datastart = strstr(buf, interface)))
-			return NULL;
+			return -1;
 
 		datastart = (datastart+(strlen(interface)+1));
 		sscanf(datastart + 1, " %*d   %d  %*d  %*d\t\t  %*d\t   "
 		       "%*d\t\t%*d\t\t %*d\t  %*d\t\t %*d", &cur);
 
 		/* 70 is the max of /proc/net/wireless */
-		return bprintf("%d", (int)((float)cur / 70 * 100));
+		*perc = (int)((float)cur / 70 * 100);
+		return 0;
 	}
 
 	const char *
-	wifi_essid(const char *interface)
+	wifi_perc(const char *interface)
+	{
+		int perc;
+
+		if (_wifi_perc(interface, &perc) < 0)
+			return NULL;
+
+		return bprintf("%d", perc);
+	}
+
+	static int
+	_wifi_essid(const char *interface, char **essid)
 	{
 		static char id[IW_ESSID_MAX_SIZE+1];
 		int sockfd;
@@ -76,26 +91,58 @@
 		wreq.u.essid.length = IW_ESSID_MAX_SIZE+1;
 		if (esnprintf(wreq.ifr_name, sizeof(wreq.ifr_name), "%s",
 		              interface) < 0)
-			return NULL;
+			return -1;
 
 		if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 			warn("socket 'AF_INET':");
-			return NULL;
+			return -1;
 		}
 		wreq.u.essid.pointer = id;
 		if (ioctl(sockfd,SIOCGIWESSID, &wreq) < 0) {
 			warn("ioctl 'SIOCGIWESSID':");
 			close(sockfd);
-			return NULL;
+			return -1;
 		}
 
 		close(sockfd);
 
 		if (!strcmp(id, ""))
+			return -1;
+
+		*essid = id;
+		return 0;
+	}
+	
+	const char *
+	wifi_essid(const char *interface)
+	{
+		char *essid;
+
+		if (_wifi_essid(interface, &essid) < 0)
 			return NULL;
 
-		return id;
+		return essid;
 	}
+
+	const char *
+	wifi_essid_di(const char *interface)
+	{
+		char *essid;
+		int perc;
+
+		if (_wifi_essid(interface, &essid) < 0)
+			return bprintf("%s%s%s %s", dwdi.colb, dwdi.ico, dwdi.cole, disconnected);
+
+		if (_wifi_perc(interface, &perc) < 0)
+			return NULL;
+
+		for (long unsigned int i = 0; i < LEN(wdis); i++)
+			if (perc <= wdis[i].lvl)
+				return bprintf("%s%s%s %s", wdis[i].colb, wdis[i].ico, wdis[i].cole, essid);
+
+		return essid;
+	}
+
 #elif defined(__OpenBSD__)
 	#include <net/if.h>
 	#include <net/if_media.h>
