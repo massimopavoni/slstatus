@@ -15,8 +15,8 @@
 	 *
 	 * battery_perc        battery percentage              battery name (BAT0)
 	 *                                                     NULL on OpenBSD/FreeBSD
-	 * battery_perc_bdi    battery percentage              battery name (BAT0)
-	 *                     with dynamic icons support      LINUX ONLY
+	 * battery_perc_di     battery percentage              battery name (BAT0)
+	 *                     with dynamic icon support       LINUX ONLY
 	 * battery_remaining   battery remaining HH:MM         battery name (BAT0)
 	 *                                                     NULL on OpenBSD/FreeBSD
 	 * battery_state       battery charging state          battery name (BAT0)
@@ -72,7 +72,7 @@
 		{ temp,              " %2s°C",           "/sys/class/thermal/thermal_zone8/temp" },
 		{ ram_used,          " %6s |",           NULL },
 		{ wifi_essid,        " \uf1eb %s |",     "wlan0" },
-		{ battery_perc_bdi,  " %4s%% |",         "BAT0" },
+		{ battery_perc_di,   " %4s%% |",         "BAT0" },
 		{ keymap,            " %s |",            NULL },
 		{ datetime,          " %s |",            "%A %d %B %Y | %T" },
 	};

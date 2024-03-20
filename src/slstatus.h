@@ -2,7 +2,7 @@
 
 /* battery */
 const char *battery_perc(const char *);
-const char *battery_perc_bdi(const char *);
+const char *battery_perc_di(const char *);
 const char *battery_remaining(const char *);
 const char *battery_state(const char *);
 

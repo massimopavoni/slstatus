@@ -68,7 +68,7 @@
 	}
 
 	const char *
-	battery_perc_bdi(const char *bat)
+	battery_perc_di(const char *bat)
 	{
 		int perc, ac_online;
 		char ac_online_path[PATH_MAX];
