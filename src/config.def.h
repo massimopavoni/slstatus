@@ -73,7 +73,7 @@
 		{ cpu_perc,          " \uf4bc %2s%%",    NULL },
 		{ temp,              " %2s°C",           "/sys/class/thermal/thermal_zone8/temp" },
 		{ ram_used,          " %6s |",           NULL },
-		{ wifi_essid_di,     " %5s |",          "wlan0" },
+		{ wifi_essid_di,     " %5s |",           "wlan0" },
 		{ battery_perc_di,   " %4s%% |",         "BAT0" },
 		{ keymap,            " %s |",            NULL },
 		{ datetime,          " %s |",            "%A %d %B %Y | %T" },
