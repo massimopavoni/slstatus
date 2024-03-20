@@ -15,6 +15,8 @@
 	 *
 	 * battery_perc        battery percentage              battery name (BAT0)
 	 *                                                     NULL on OpenBSD/FreeBSD
+	 * battery_perc_bdi    battery percentage              battery name (BAT0)
+	 *                     with dynamic icons support      LINUX ONLY
 	 * battery_remaining   battery remaining HH:MM         battery name (BAT0)
 	 *                                                     NULL on OpenBSD/FreeBSD
 	 * battery_state       battery charging state          battery name (BAT0)
@@ -65,28 +67,44 @@
 	 * wifi_perc           WiFi signal in percent          interface name (wlan0)
 	 */
 	static const struct arg args[] = {
-		/* function      format              argument */
-		{ cpu_perc,      " \uf4bc %2s%%",    NULL },
-		{ temp,          " %2s°C",           "/sys/class/thermal/thermal_zone8/temp" },
-		{ ram_used,      " %6s |",           NULL },
-		{ wifi_essid,    " \uf1eb %s |",     "wlan0" },
-		{ battery_perc,  " %s%% |",          "BAT0" },
-		{ keymap,        " %s |",            NULL },
-		{ datetime,      " %s |",            "%A %d %B %Y | %T" },
+		/* function          format              argument */
+		{ cpu_perc,          " \uf4bc %2s%%",    NULL },
+		{ temp,              " %2s°C",           "/sys/class/thermal/thermal_zone8/temp" },
+		{ ram_used,          " %6s |",           NULL },
+		{ wifi_essid,        " \uf1eb %s |",     "wlan0" },
+		{ battery_perc_bdi,  " %4s%% |",         "BAT0" },
+		{ keymap,            " %s |",            NULL },
+		{ datetime,          " %s |",            "%A %d %B %Y | %T" },
 	};
 #endif
 
 #if defined(BATTERY_CONFIG) && defined(__linux__)
         /* enable dynamic icons and choose graphemes for them
          * status2d dwm patch needed for colors: leave NULL if not patched */
-        const int bdi = 1;                /* battery dynamic icon */
-        const struct dynico bdis[] = {    /* battery dynamic icons, first one is for charging */
-                /* level  icon       start color code   end color code */
-                {  -1,    "\uf240",  "^c#ffffff^",      "^d^" },
-                {  30,    "\uf244",  "^c#ff0000^",      "^d^" },
-                {  40,    "\uf243",  "^c#ffaa00^",      "^d^" },
-                {  50,    "\uf242",  "^c#ffff00^",      "^d^" },
-                {  75,    "\uf241",  "^c#aaff00^",      "^d^" },
-                {  100,   "\uf240",  "^c#00ff00^",      "^d^" },
+        const struct dynico bdis[] = {    /* battery icons */
+                /* level  icon  begin color code  end color code */
+                {  10,    "󰁺",  "^c#ff0000^",     "^d^" },
+		{  20,    "󰁻",  "^c#ff3900^",     "^d^" },
+                {  30,    "󰁼",  "^c#ff7100^",     "^d^" },
+                {  40,    "󰁽",  "^c#ffaa00^",     "^d^" },
+                {  50,    "󰁾",  "^c#ffe300^",     "^d^" },
+		{  60,    "󰁿",  "^c#e3ff00^",     "^d^" },
+		{  70,    "󰂀",  "^c#aaff00^",     "^d^" },
+		{  80,    "󰂁",  "^c#71ff00^",     "^d^" },
+                {  90,    "󰂂",  "^c#39ff00^",     "^d^" },
+                {  100,   "󰁹",  "^c#00ff00^",     "^d^" },
+        };
+	const struct dynico cbdis[] = {   /* charging battery icons */
+		/* level  icon  begin color code  end color code */
+		{  10,    "󰢜",  "^c#ff0000^",     "^d^" },
+                {  20,    "󰂆",  "^c#ff3900^",     "^d^" },
+                {  30,    "󰂇",  "^c#ff7100^",     "^d^" },
+                {  40,    "󰂈",  "^c#ffaa00^",     "^d^" },
+                {  50,    "󰢝",  "^c#ffe300^",     "^d^" },
+                {  60,    "󰂉",  "^c#e3ff00^",     "^d^" },
+                {  70,    "󰢞",  "^c#aaff00^",     "^d^" },
+                {  80,    "󰂊",  "^c#71ff00^",     "^d^" },
+                {  90,    "󰂋",  "^c#39ff00^",     "^d^" },
+                {  100,   "󰂅",  "^c#00ff00^",     "^d^" },
         };
 #endif

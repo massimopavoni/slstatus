@@ -24,8 +24,8 @@
 
 	#define BATTERY_CONFIG
 	#include "../config.h"
-	extern const int bdi;
 	extern const struct dynico bdis[];
+	extern const struct dynico cbdis[];
 
 	static const char *
 	pick(const char *bat, const char *f1, const char *f2, char *path,
@@ -42,35 +42,58 @@
 		return NULL;
 	}
 
-	const char *
-	battery_perc(const char *bat)
+	static int
+	_battery_perc(const char *bat, int *perc)
 	{
-		int cap_perc, ac_online;
+		int cap_perc;
 		char cap_perc_path[PATH_MAX];
-		char ac_online_path[PATH_MAX];
 
 		if (esnprintf(cap_perc_path, sizeof(cap_perc_path), POWER_SUPPLY_CAPACITY, bat) < 0)
-			return NULL;
+			return -1;
 		if (pscanf(cap_perc_path, "%d", &cap_perc) != 1)
+			return -1;
+
+		*perc = cap_perc;
+		return 0;
+	}
+
+	const char *
+	battery_perc(const char *bat) 
+	{
+		int perc;
+		if (_battery_perc(bat, &perc) < 0)
 			return NULL;
 
-		if (bdi) {
-			if (esnprintf(ac_online_path, sizeof(ac_online_path), AC_ONLINE, NULL) < 0)
-				return NULL;
-			if (pscanf(ac_online_path, "%d", &ac_online) != 1)
-				return NULL;
+		return bprintf("%d", perc);
+	}
 
-			for (long unsigned int i = 1; i < LEN(bdis); i++) {
-				if (cap_perc <= bdis[i].lvl) {
-					if (ac_online)
-						return bprintf("%s%s%s %d", bdis[0].colb, bdis[i].ico, bdis[0].cole, cap_perc);
-					else
-						return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, cap_perc);
-				}
+	const char *
+	battery_perc_bdi(const char *bat)
+	{
+		int perc, ac_online;
+		char ac_online_path[PATH_MAX];
+
+		if (_battery_perc(bat, &perc) < 0)
+			return NULL;
+		
+		if (esnprintf(ac_online_path, sizeof(ac_online_path), AC_ONLINE, NULL) < 0)
+			return NULL;
+		if (pscanf(ac_online_path, "%d", &ac_online) != 1)
+			return NULL;
+		
+		if (ac_online) {
+			for (long unsigned int i = 0; i < LEN(cbdis); i++) {
+				if (perc <= cbdis[i].lvl)
+					return bprintf("%s%s%s %d", cbdis[i].colb, cbdis[i].ico, cbdis[i].cole, perc);
 			}
 		}
-
-		return bprintf("%d", cap_perc_path);
+		
+		for (long unsigned int i = 1; i < LEN(bdis); i++) {
+			if (perc <= bdis[i].lvl)
+				return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, perc);
+                }
+		
+		return bprintf("%d", perc);
 	}
 
 	const char *
