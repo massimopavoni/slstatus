@@ -1,10 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 
 /* battery */
-const char *battery_perc(const char *);
-const char *battery_perc_di(const char *);
-const char *battery_remaining(const char *);
-const char *battery_state(const char *);
+const char *battery_perc(const char *bat);
+const char *battery_perc_di(const char *bat);
+const char *battery_remaining(const char *bat);
+const char *battery_state(const char *bat);
 
 /* cat */
 const char *cat(const char *path);
@@ -12,6 +12,7 @@ const char *cat(const char *path);
 /* cpu */
 const char *cpu_freq(const char *unused);
 const char *cpu_perc(const char *unused);
+const char *cpu_perc_di(const char *unused);
 
 /* datetime */
 const char *datetime(const char *fmt);
@@ -54,6 +55,7 @@ const char *num_files(const char *path);
 /* ram */
 const char *ram_free(const char *unused);
 const char *ram_perc(const char *unused);
+const char *ram_perc_di(const char *unused);
 const char *ram_total(const char *unused);
 const char *ram_used(const char *unused);
 
@@ -67,7 +69,8 @@ const char *swap_total(const char *unused);
 const char *swap_used(const char *unused);
 
 /* temperature */
-const char *temp(const char *);
+const char *temp(const char *file);
+const char *temp_di(const char *file);
 
 /* uptime */
 const char *uptime(const char *unused);
@@ -81,6 +84,6 @@ const char *username(const char *unused);
 const char *vol_perc(const char *card);
 
 /* wifi */
-const char *wifi_essid(const char *interface);
-const char *wifi_essid_di(const char *interface);
 const char *wifi_perc(const char *interface);
+const char *wifi_perc_di(const char *interface);
+const char *wifi_essid(const char *interface);

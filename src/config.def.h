@@ -16,7 +16,7 @@
 	 * battery_perc        battery percentage              battery name (BAT0)
 	 *                                                     NULL on OpenBSD/FreeBSD
 	 * battery_perc_di     battery percentage              battery name (BAT0)
-	 *                     with dynamic icon support       LINUX ONLY
+	 *                     dynamic icon only               LINUX ONLY
 	 * battery_remaining   battery remaining HH:MM         battery name (BAT0)
 	 *                                                     NULL on OpenBSD/FreeBSD
 	 * battery_state       battery charging state          battery name (BAT0)
@@ -24,6 +24,8 @@
 	 * cat                 read arbitrary file             path
 	 * cpu_freq            cpu frequency in MHz            NULL
 	 * cpu_perc            cpu usage in percent            NULL
+	 * cpu_perc_di         cpu usage in percent            NULL
+	 *                     dynamic icon only               LINUX ONLY
 	 * datetime            date and time                   format string (%F %T)
 	 * disk_free           free disk space in GB           mountpoint path (/)
 	 * disk_perc           disk usage in percent           mountpoint path (/)
@@ -46,6 +48,8 @@
 	 *                                                     (/home/foo/Inbox/cur)
 	 * ram_free            free memory in GB               NULL
 	 * ram_perc            memory usage in percent         NULL
+	 * ram_perc_di         memory usage in percent         NULL
+	 *                     dynamic icon only               LINUX ONLY
 	 * ram_total           total memory size in GB         NULL
 	 * ram_used            used memory in GB               NULL
 	 * run_command         custom shell command            command (echo foo)
@@ -58,23 +62,30 @@
 	 *                                                     NULL on OpenBSD
 	 *                                                     thermal zone on FreeBSD
 	 *                                                     (tz0, tz1, etc.)
+	 * temp_di             temperature in degree celsius   sensor file
+	 *                     dynamic icon only               LINUX ONLY
 	 * uid                 UID of current user             NULL
 	 * uptime              system uptime                   NULL
 	 * username            username of current user        NULL
 	 * vol_perc            OSS/ALSA volume in percent      mixer file (/dev/mixer)
 	 *                                                     NULL on OpenBSD/FreeBSD
-	 * wifi_essid          WiFi ESSID                      interface name (wlan0)
-	 * wifi_essid_di       WiFi ESSID                      interface name (wlan0)
-	 *                     with dynamic icon support       LINUX ONLY
 	 * wifi_perc           WiFi signal in percent          interface name (wlan0)
+	 * wifi_perc_di        WiFi signal in percent          interface name (wlan0)
+	 *                     dynamic icon only               LINUX ONLY
+	 * wifi_essid          WiFi ESSID                      interface name (wlan0)
 	 */
 	static const struct arg args[] = {
 		/* function          format              argument */
-		{ cpu_perc,          " \uf4bc %2s%%",    NULL },
-		{ temp,              " %2s°C",           "/sys/class/thermal/thermal_zone8/temp" },
+		{ cpu_perc_di,       " %s",              NULL },
+		{ cpu_perc,          " %2s%% |",         NULL },
+		{ temp_di,           " %s",              "/sys/class/thermal/thermal_zone8/temp" },
+		{ temp,              " %2s°C |",         "/sys/class/thermal/thermal_zone8/temp" },
+		{ ram_perc_di,       " %s",              NULL },
 		{ ram_used,          " %6s |",           NULL },
-		{ wifi_essid_di,     " %5s |",           "wlan0" },
-		{ battery_perc_di,   " %4s%% |",         "BAT0" },
+		{ wifi_perc_di,      " %s",              "wlan0" },
+		{ wifi_essid,        " %.3s |",          "wlan0" },
+		{ battery_perc_di,   " %s",              "BAT0" },
+		{ battery_perc,      " %2s%% |",         "BAT0" },
 		{ keymap,            " %s |",            NULL },
 		{ datetime,          " %s |",            "%A %d %B %Y | %T" },
 	};
@@ -112,6 +123,41 @@
 	                {  90,    "󰂋",  "^c#39ff00^",     "^d^" },
 	                {  100,   "󰂅",  "^c#00ff00^",     "^d^" },
 	        };
+	#elif defined(CPU_CONFIG)
+		/* cpu dynamic icons */
+		const struct dynico cdis[] = {
+			/* level  icon  begin color code  end color code */
+			{  10,    "󰻠",  "^c#00ff00^",     "^d^" },
+                        {  20,    "󰻠",  "^c#39ff00^",     "^d^" },
+                        {  30,    "󰻠",  "^c#71ff00^",     "^d^" },
+                        {  40,    "󰻠",  "^c#aaff00^",     "^d^" },
+                        {  50,    "󰻠",  "^c#e3ff00^",     "^d^" },
+                        {  60,    "󰻠",  "^c#ffe300^",     "^d^" },
+                        {  70,    "󰻠",  "^c#ffaa00^",     "^d^" },
+                        {  80,    "󰻠",  "^c#ff7100^",     "^d^" },
+                        {  90,    "󰻠",  "^c#ff3900^",     "^d^" },
+                        {  100,   "󰻠",  "^c#ff0000^",     "^d^" },
+		};
+	#elif defined(RAM_CONFIG)
+		/* ram dynamic icons */
+		const struct dynico rdis[] = {
+			/* level  icon  begin color code  end color code */
+			{  40,    "󰘚",  "^c#00ff00^",     "^d^" },
+                        {  60,    "󰘚",  "^c#aaff00^",     "^d^" },
+                        {  80,    "󰘚",  "^c#ffaa00^",     "^d^" },
+                        {  100,   "󰘚",  "^c#ff0000^",     "^d^" },
+		};
+	#elif defined(TEMP_CONFIG)
+		/* temperature dynamic icons */
+		/* would need a rework to support multiple uses
+		 * but I personally don't need that so I'll leave it as is for now */
+		const struct dynico tdis[] = {
+			/* level  icon  begin color code  end color code */
+			{  50,    "󱤋",  "^c#00ff00^",     "^d^" },
+                        {  65,    "󱤋",  "^c#aaff00^",     "^d^" },
+                        {  80,    "󱤋",  "^c#ffaa00^",     "^d^" },
+                        {  90,    "󱤋",  "^c#ff0000^",     "^d^" },
+		};
 	#elif defined(WIFI_CONFIG)
 		/* wifi dynamic icons */
 		const struct dynico wdis[] = {

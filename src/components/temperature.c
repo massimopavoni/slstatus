@@ -8,15 +8,41 @@
 #if defined(__linux__)
 	#include <stdint.h>
 
-	const char *
-	temp(const char *file)
+	#define TEMP_CONFIG
+	#include "../config.h"
+
+	static int
+	_temp(const char *file, uintmax_t *t)
 	{
 		uintmax_t temp;
 
 		if (pscanf(file, "%ju", &temp) != 1)
+			return -1;
+
+		*t = temp / 1000;
+		return 0;
+	}
+
+	const char *
+	temp(const char *file)
+	{
+		uintmax_t t;
+
+		if (_temp(file, &t) < 0)
 			return NULL;
 
-		return bprintf("%ju", temp / 1000);
+		return bprintf("%ju", t);
+	}
+
+	const char *
+	temp_di(const char *file)
+	{
+		uintmax_t t;
+
+		if (_temp(file, &t) < 0)
+			return NULL;
+
+		return iprintf(tdis, LEN(tdis), t);
 	}
 #elif defined(__OpenBSD__)
 	#include <stdio.h>

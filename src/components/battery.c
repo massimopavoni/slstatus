@@ -80,17 +80,10 @@
 		if (pscanf(ac_online_path, "%d", &ac_online) != 1)
 			return NULL;
 		
-		if (ac_online) {
-			for (long unsigned int i = 0; i < LEN(cbdis); i++)
-				if (perc <= cbdis[i].lvl)
-					return bprintf("%s%s%s %d", cbdis[i].colb, cbdis[i].ico, cbdis[i].cole, perc);
-		}
+		if (ac_online)
+			return iprintf(cbdis, LEN(cbdis), perc);
 		
-		for (long unsigned int i = 1; i < LEN(bdis); i++)
-			if (perc <= bdis[i].lvl)
-				return bprintf("%s%s%s %d", bdis[i].colb, bdis[i].ico, bdis[i].cole, perc);
-
-		return bprintf("%d", perc);
+		return iprintf(bdis, LEN(bdis), perc);
 	}
 
 	const char *
@@ -155,6 +148,7 @@
 
 		return "";
 	}
+
 #elif defined(__OpenBSD__)
 	#include <fcntl.h>
 	#include <machine/apmvar.h>

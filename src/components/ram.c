@@ -7,71 +7,93 @@
 #if defined(__linux__)
 	#include <stdint.h>
 
+	#define RAM_CONFIG
+	#include "../config.h"
+
+	static int
+	_ram_info(uintmax_t *t, uintmax_t *f, uintmax_t *u, int *p)
+	{
+		uintmax_t total, free, buffers, cached, used;
+
+		if (pscanf("/proc/meminfo",
+                           "MemTotal: %ju kB\n"
+                           "MemFree: %ju kB\n"
+                           "MemAvailable: %ju kB\n"
+                           "Buffers: %ju kB\n"
+                           "Cached: %ju kB\n",
+                           &total, &free, &buffers, &buffers, &cached) != 5)
+                        return -1;
+
+		if (total == 0)
+			return -1;
+
+		used = total - free - buffers - cached;
+
+		*t = total;
+		*f = free;
+		*u = used;
+		*p = 100 * used / total;
+		return 0;
+	}
+
 	const char *
 	ram_free(const char *unused)
 	{
-		uintmax_t free;
+		uintmax_t null, f;
+		int inull;
 
-		if (pscanf("/proc/meminfo",
-		           "MemTotal: %ju kB\n"
-		           "MemFree: %ju kB\n"
-		           "MemAvailable: %ju kB\n",
-		           &free, &free, &free) != 3)
+		if (_ram_info(&null, &f, &null, &inull) < 0)
 			return NULL;
 
-		return fmt_human(free * 1024, 1024);
+		return fmt_human(f * 1024, 1024);
 	}
 
 	const char *
 	ram_perc(const char *unused)
 	{
-		uintmax_t total, free, buffers, cached;
-		int percent;
+		uintmax_t null;
+		int p;
 
-		if (pscanf("/proc/meminfo",
-		           "MemTotal: %ju kB\n"
-		           "MemFree: %ju kB\n"
-		           "MemAvailable: %ju kB\n"
-		           "Buffers: %ju kB\n"
-		           "Cached: %ju kB\n",
-		           &total, &free, &buffers, &buffers, &cached) != 5)
+		if (_ram_info(&null, &null, &null, &p) < 0)
 			return NULL;
 
-		if (total == 0)
+		return bprintf("%d", p);
+	}
+	
+	const char *
+	ram_perc_di(const char *unused)
+	{
+		uintmax_t null;
+		int p;
+
+		if (_ram_info(&null, &null, &null, &p) < 0)
 			return NULL;
 
-		percent = 100 * ((total - free) - (buffers + cached)) / total;
-		return bprintf("%d", percent);
+		return iprintf(rdis, LEN(rdis), p);
 	}
 
 	const char *
 	ram_total(const char *unused)
 	{
-		uintmax_t total;
+		uintmax_t t, null;
+		int inull;
 
-		if (pscanf("/proc/meminfo", "MemTotal: %ju kB\n", &total)
-		    != 1)
+		if (_ram_info(&t, &null, &null, &inull) < 0)
 			return NULL;
 
-		return fmt_human(total * 1024, 1024);
+		return fmt_human(t * 1024, 1024);
 	}
 
 	const char *
 	ram_used(const char *unused)
 	{
-		uintmax_t total, free, buffers, cached, used;
+		uintmax_t null, u;
+		int inull;
 
-		if (pscanf("/proc/meminfo",
-		           "MemTotal: %ju kB\n"
-		           "MemFree: %ju kB\n"
-		           "MemAvailable: %ju kB\n"
-		           "Buffers: %ju kB\n"
-		           "Cached: %ju kB\n",
-		           &total, &free, &buffers, &buffers, &cached) != 5)
+		if (_ram_info(&null, &null, &u, &inull) < 0)
 			return NULL;
 
-		used = (total - free - buffers - cached);
-		return fmt_human(used * 1024, 1024);
+		return fmt_human(u * 1024, 1024);
 	}
 #elif defined(__OpenBSD__)
 	#include <stdlib.h>

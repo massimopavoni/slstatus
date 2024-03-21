@@ -121,6 +121,16 @@ fmt_human(uintmax_t num, int base)
 	return bprintf("%.1f%s", scaled, prefix[i]);
 }
 
+const char *
+iprintf(const struct dynico *dis, size_t dislen, uintmax_t value)
+{
+	for (long unsigned int i = 0; i < dislen; i++)
+		if (value <= dis[i].lvl)
+			return bprintf("%s%s%s", dis[i].colb, dis[i].ico, dis[i].cole);
+
+	return "";
+}
+
 int
 pscanf(const char *path, const char *fmt, ...)
 {

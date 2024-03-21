@@ -8,6 +8,12 @@
 
 #if defined(__linux__)
 	#define CPU_FREQ "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
+	
+	#define CPU_CONFIG
+	#include "../config.h"
+	/* shenanigans for not calling _cpu_perc too many times,
+	 * causing step skipping, should probably have to fix this another way */
+	static int shared_perc = -1, call_counter = 0;
 
 	const char *
 	cpu_freq(const char *unused)
@@ -21,31 +27,66 @@
 		return fmt_human(freq * 1000, 1000);
 	}
 
+	static int
+	_cpu_perc(int *perc)
+	{
+		static long double a[7];
+		
+		if (shared_perc < 0) {
+			long double b[7], sum;
+
+			memcpy(b, a, sizeof(b));
+			/* cpu user nice system idle iowait irq softirq */
+			if (pscanf("/proc/stat", "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf",
+					&a[0], &a[1], &a[2], &a[3], &a[4], &a[5], &a[6])
+				!= 7)
+				return -1;
+
+			if (b[0] == 0)
+				return -1;
+
+			sum = (b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6]) -
+				(a[0] + a[1] + a[2] + a[3] + a[4] + a[5] + a[6]);
+
+			if (sum == 0)
+				return -1;
+
+			shared_perc = (int)(100 *
+							((b[0] + b[1] + b[2] + b[5] + b[6]) -
+							(a[0] + a[1] + a[2] + a[5] + a[6])) / sum);
+		}
+
+		*perc = shared_perc;
+		
+		call_counter++;
+		if (call_counter == 2) {
+			shared_perc = -1;
+			call_counter = 0;
+		}
+
+		return 0;
+	}
+	
 	const char *
 	cpu_perc(const char *unused)
 	{
-		static long double a[7];
-		long double b[7], sum;
+		int perc;
 
-		memcpy(b, a, sizeof(b));
-		/* cpu user nice system idle iowait irq softirq */
-		if (pscanf("/proc/stat", "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf",
-		           &a[0], &a[1], &a[2], &a[3], &a[4], &a[5], &a[6])
-		    != 7)
+		if (_cpu_perc(&perc) < 0)
+			return NULL;
+		
+		return bprintf("%d", perc);
+	}
+
+	const char *
+	cpu_perc_di(const char *unused)
+	{
+		int perc;
+
+		if (_cpu_perc(&perc) < 0)
 			return NULL;
 
-		if (b[0] == 0)
-			return NULL;
-
-		sum = (b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6]) -
-		      (a[0] + a[1] + a[2] + a[3] + a[4] + a[5] + a[6]);
-
-		if (sum == 0)
-			return NULL;
-
-		return bprintf("%d", (int)(100 *
-		               ((b[0] + b[1] + b[2] + b[5] + b[6]) -
-		                (a[0] + a[1] + a[2] + a[5] + a[6])) / sum));
+		return iprintf(cdis, LEN(cdis), shared_perc);
 	}
 #elif defined(__OpenBSD__)
 	#include <sys/param.h>
