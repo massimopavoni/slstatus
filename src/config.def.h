@@ -142,9 +142,15 @@
 		/* ram dynamic icons */
 		const struct dynico rdis[] = {
 			/* level  icon  begin color code  end color code */
-			{  40,    "󰘚",  "^c#00ff00^",     "^d^" },
-                        {  60,    "󰘚",  "^c#aaff00^",     "^d^" },
-                        {  80,    "󰘚",  "^c#ffaa00^",     "^d^" },
+			{  10,    "󰘚",  "^c#00ff00^",     "^d^" },
+                        {  20,    "󰘚",  "^c#39ff00^",     "^d^" },
+                        {  30,    "󰘚",  "^c#71ff00^",     "^d^" },
+                        {  40,    "󰘚",  "^c#aaff00^",     "^d^" },
+                        {  50,    "󰘚",  "^c#e3ff00^",     "^d^" },
+                        {  60,    "󰘚",  "^c#ffe300^",     "^d^" },
+                        {  70,    "󰘚",  "^c#ffaa00^",     "^d^" },
+                        {  80,    "󰘚",  "^c#ff7100^",     "^d^" },
+                        {  90,    "󰘚",  "^c#ff3900^",     "^d^" },
                         {  100,   "󰘚",  "^c#ff0000^",     "^d^" },
 		};
 	#elif defined(TEMP_CONFIG)
