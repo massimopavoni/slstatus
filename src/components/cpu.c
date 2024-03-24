@@ -86,7 +86,7 @@
 		if (_cpu_perc(&perc) < 0)
 			return NULL;
 
-		return iprintf(cdis, LEN(cdis), shared_perc);
+		return iprintf(cdis, LEN(cdis), perc);
 	}
 #elif defined(__OpenBSD__)
 	#include <sys/param.h>

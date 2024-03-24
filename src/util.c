@@ -128,7 +128,7 @@ iprintf(const struct dynico *dis, size_t dislen, uintmax_t value)
 		if (value <= dis[i].lvl)
 			return bprintf("%s%s%s", dis[i].colb, dis[i].ico, dis[i].cole);
 
-	return "";
+	return bprintf("%s", dis[0].ico);
 }
 
 int
