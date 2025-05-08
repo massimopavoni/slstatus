@@ -65,6 +65,7 @@
 	 * temp_di             temperature in degree celsius   sensor file
 	 *                     dynamic icon only               LINUX ONLY
 	 * uid                 UID of current user             NULL
+	 * up                  interfaace is running           interface name (eth0)
 	 * uptime              system uptime                   NULL
 	 * username            username of current user        NULL
 	 * vol_perc            OSS/ALSA volume in percent      mixer file (/dev/mixer)
