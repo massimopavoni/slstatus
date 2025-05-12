@@ -202,7 +202,7 @@
 	{
 		int perc;
 
-		if (_wifi_perc(interface, &perc) < 0)
+		if (_wifi_perc(interface, &perc) < 0 || perc < 0)
 			return bprintf("%s%s%s", dwdi.colb, dwdi.ico, dwdi.cole, disconnected);
 
 		return iprintf(wdis, LEN(wdis), perc);
